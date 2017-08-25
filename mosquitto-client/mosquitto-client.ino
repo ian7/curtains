@@ -1,9 +1,18 @@
+#include <Update.h>
+
+#include <DHT.h>
+
 #include <MQTTClient.h>
 #include <WiFi.h>
 #include "credentials.h"
 
+#define DHTTYPE DHT11   // DHT 11
+#define DHTPIN 17
+
 WiFiClient net;
 MQTTClient client;
+
+DHT dht(DHTPIN, DHTTYPE);
 
 int pinA = 18; // Connected to CLK on KY­040
 int pinB = 5; // Connected to DT on KY­040
@@ -13,6 +22,24 @@ int aVal;
 int edgeSensor;
 int lastEdgeSensor;
 boolean bCW;
+
+const int songLength = 18;
+
+// Notes is an array of text characters corresponding to the notes
+// in your song. A space represents a rest (no tone)
+
+char notes[] = "cdfda ag cdfdg gf "; // a space represents a rest
+
+// Beats is an array of values for each note and rest.
+// A "1" represents a quarter-note, 2 a half-note, etc.
+// Don't forget that the rests (spaces) need a length as well.
+
+int beats[] = {1,1,1,1,1,1,4,4,2,1,1,1,1,1,1,4,4,2};
+
+// The tempo is how fast to play the song.
+// To make the song play faster, decrease this value.
+
+int tempo = 113;
 
 
 String message("world3");
@@ -30,9 +57,10 @@ void setup() {
     pinMode(22, OUTPUT);      // set the LED pin mode
     pinMode(21, OUTPUT);      // set the LED pin mode
     pinMode(19, OUTPUT);      // set the LED pin mode
-
+    pinMode(32, OUTPUT);
   connect();  
 }
+
 
 void connect() {
   while (WiFi.status() != WL_CONNECTED) {
@@ -43,14 +71,17 @@ void connect() {
     delay(1000);
   }
 
-  Serial.println("\nconnected!");
 
-  client.subscribe("/hello");
+//  client.subscribe("/hello");
   client.subscribe("/on");
   client.subscribe("/off");
   client.subscribe("/message");
+
+    dht.begin();
   // client.unsubscribe("/hello");
 }
+
+bool b=false;
 
 void loop() {
   client.loop();
@@ -60,9 +91,16 @@ void loop() {
   }
 
   // publish a message roughly every second.
-  if (millis() - lastMillis > 1000) {
-    lastMillis = millis();
-    client.publish("/hello", message);
+  if (millis() - lastMillis > 2000) {
+      lastMillis = millis();
+
+     float h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  float f = dht.readTemperature(true);
+
+    client.publish("/hello", String("t: ") + String(t) + String(" h: ") + String(h));
   }
 
   aVal = digitalRead(pinA);
@@ -87,7 +125,7 @@ void loop() {
   pinALast = aVal;
 
 
-  edgeSensor = digitalRead(17);
+  edgeSensor = digitalRead(16);
   if( edgeSensor != lastEdgeSensor ){
     lastEdgeSensor = edgeSensor;
     if( edgeSensor == 0 ) {
@@ -100,7 +138,11 @@ void loop() {
 }
 
 void messageReceived(String &topic, String &payload) {
-    char topicChar[1024];
+   digitalWrite(32, HIGH); 
+   delay(5);
+   digitalWrite(32,LOW);
+ 
+   char topicChar[1024];
   topic.toCharArray(topicChar,256);
   int payloadInt = payload.toInt();
   String son = String("/on");
@@ -144,3 +186,5 @@ void messageReceived(String &topic, String &payload) {
   }
 
 }
+
+
