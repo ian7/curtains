@@ -26,6 +26,21 @@ client.connect(url.hostname, url.port)
 dev = InputDevice(DEVICE)
 
 def receive( code ):
+    if( code == 71 ):
+	print('1')
+	client.publish("/watering","1")
+    if( code == 72 ):
+	print('2')
+	client.publish("/watering","2")
+    if( code == 73 ):
+	print('3')
+	client.publish("/watering","3")
+    if( code == 78 ):
+	print('4')
+	client.publish("/watering","4")
+    if( code == 74 ):
+	print('0')
+	client.publish("/watering","0")
     if( code == 83 ):
         print('stop')
 	client.publish("/off","1")
