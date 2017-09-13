@@ -19,8 +19,6 @@ client = mosquitto.Mosquitto()
 url_str = 'mqtt://10.10.1.3:1883'
 url = urlparse.urlparse(url_str)
 
-# Connect
-client.connect(url.hostname, url.port)
 
 
 dev = InputDevice(DEVICE)
@@ -43,32 +41,23 @@ def receive( code ):
 	client.publish("/watering","0")
     if( code == 83 ):
         print('stop')
-	client.publish("/off","1")
-	client.publish("/off","2")
+	client.publish("/curtains/command","stop")
     if( code == 82 ):
-        print('close')
-	client.publish("/on","1")
-	client.publish("/off","2")
+        print('open')
+	client.publish("/curtains/command","open")
     if( code == 96 ):
-        print('open')
-	client.publish("/off","1")
-	client.publish("/on","2")
+        print('close')
+	client.publish("/curtains/command","close")
     if( code == 79 ):
-        print('open')
-	client.publish("/off","3")
-	client.publish("/off","4")
+        print('slow')
+	client.publish("/curtains/command","slow")
     if( code == 80 ):
-        print('open')
-	client.publish("/off","3")
-	client.publish("/on","4")
+        print('fast')
+	client.publish("/curtains/command","fast")
     if( code == 81 ):
-        print('open')
-	client.publish("/on","3")
-	client.publish("/off","4")
+        print('3')
     if( code == 75 ):
-        print('open')
-	client.publish("/on","3")
-	client.publish("/on","4")
+        print('4')
 
 
 while True:
@@ -78,6 +67,9 @@ while True:
     # read keypad        
     for event in dev.read():
         if event.type==1 and event.value==1:
+	    # Connect
+	    client.connect(url.hostname, url.port)
             print "KEY CODE: " + str(event.code)
             receive( event.code )
+	    client.disconnect()
 
