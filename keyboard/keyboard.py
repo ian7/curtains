@@ -24,19 +24,37 @@ url = urlparse.urlparse(url_str)
 dev = InputDevice(DEVICE)
 
 def receive( code ):
+    if( code == 69 ):
+	print('n')
+	client.publish("/light/brightness","+")
     if( code == 71 ):
+	print('n')
+	client.publish("/light/brightness","-")
+    if( code == 98 ):
+	print('n')
+	client.publish("/light/saturation","+")
+    if( code == 72 ):
+	print('n')
+	client.publish("/light/saturation","-")
+    if( code == 55 ):
+	print('n')
+	client.publish("/light/hue","+")
+    if( code == 73 ):
+	print('n')
+	client.publish("/light/hue","-")
+    if( code == 75 ):
 	print('1')
 	client.publish("/watering","1")
-    if( code == 72 ):
+    if( code == 76 ):
 	print('2')
 	client.publish("/watering","2")
-    if( code == 73 ):
+    if( code == 77 ):
 	print('3')
 	client.publish("/watering","3")
-    if( code == 78 ):
+    if( code == 14 ):
 	print('4')
 	client.publish("/watering","4")
-    if( code == 74 ):
+    if( code == 78 ):
 	print('0')
 	client.publish("/watering","0")
     if( code == 83 ):
