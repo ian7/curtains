@@ -3,6 +3,7 @@
     "express": "",
     "fs": "",
     "jsonpath": "",
-    "body-parser": ""
+    "body-parser": "",
+    "mqtt": ""
   }
 }
